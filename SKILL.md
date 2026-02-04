@@ -4,65 +4,40 @@ description: Control Xiaomi Home devices via local LAN using miiocli. Supports s
 metadata: {"clawdbot":{"emoji":"🏠","requires":{"bins":["miiocli"]},"install":[{"id":"pipx-miio","kind":"exec","command":"pipx install python-miio && /Users/$(whoami)/.local/pipx/venvs/python-miio/bin/python -m pip install 'click<8.1.0'","label":"Install python-miio via pipx (with click fix)"}]}}
 ---
 
-# Xiaomi Home Control
+# Xiaomi Home Control 🏠
 
-This skill enables Clawdbot to control Xiaomi (Mi Home) devices over the local network using the `python-miio` library.
+Enable code-level control of Xiaomi (Mi Home) devices over the local network.
 
-## Prerequisites
+## 🛠️ Setup & Device Inventory
 
-1. **Network**: The device running Clawdbot must be on the same local network as your Xiaomi devices.
-2. **Credentials**: You need the **IP Address** and the **32-character Token** for each device.
+1. **Tokens**: Obtain device IPs and Tokens using the bundled script:
+   ```bash
+   python3 scripts/token_extractor.py
+   ```
+2. **Registry**: Store your device details in `references/devices.md` or `references/my_private_devices.md`.
 
-### How to get Tokens
-Use the bundled **Token Extractor** script:
-1. Navigate to the skill folder.
-2. Run: `python3 scripts/token_extractor.py`.
-3. Log in with your Mi Home account.
-4. Copy the IP and Token for your devices.
+## 🤖 Natural Language Intents
 
-Alternatively, use the [original repo](https://github.com/PiotrMachowski/Xiaomi-Cloud-Tokens-Extractor).
+When the user gives a command, map it to the corresponding `miiocli` operation:
 
-## Configuration
-
-Store your device information in a reference file (e.g., `references/devices.md`) in the following format:
-
-```markdown
-| Device | IP | Token | Model |
+| User Intent | Device Type | Action | Technical Command (Example) |
 | :--- | :--- | :--- | :--- |
-| Hot Water Heater | 192.168.1.50 | your_32_char_token | cuco.plug.v3 |
-```
+| "打开热水器" | Smart Plug | Power ON | `miiocli miotdevice --ip <IP> --token <TOKEN> raw_command set_properties '[{"siid": 2, "piid": 1, "value": true}]'` |
+| "关闭热水器" | Smart Plug | Power OFF | `miiocli miotdevice --ip <IP> --token <TOKEN> raw_command set_properties '[{"siid": 2, "piid": 1, "value": false}]'` |
+| "加湿器开到最大" | Humidifier | Set Mode | `miiocli miotdevice --ip <IP> --token <TOKEN> set_property_by 2 5 3` |
+| "煮饭了吗" | Rice Cooker | Check Status | `miiocli cooker --ip <IP> --token <TOKEN> status` |
+| "查看所有状态" | All | Batch Check | Run `get_property_by 2 1` for all devices in `devices.md` |
 
-## Usage Examples
+## 💡 Usage Examples
 
-### Generic MIOT Device (e.g., Smart Plug)
-Replace `<IP>` and `<TOKEN>` with your device details.
+### Generic MIOT Control (Modern Devices)
+- **Check Property**: `miiocli miotdevice --ip <IP> --token <TOKEN> get_property_by <siid> <piid>`
+- **Set Property**: `miiocli miotdevice --ip <IP> --token <TOKEN> set_property_by <siid> <piid> <value>`
 
-- **Check Status (Power)**:
-  ```bash
-  miiocli miotdevice --ip <IP> --token <TOKEN> get_property_by 2 1
-  ```
-- **Turn ON**:
-  ```bash
-  miiocli miotdevice --ip <IP> --token <TOKEN> raw_command set_properties '[{"siid": 2, "piid": 1, "value": true}]'
-  ```
-- **Turn OFF**:
-  ```bash
-  miiocli miotdevice --ip <IP> --token <TOKEN> raw_command set_properties '[{"siid": 2, "piid": 1, "value": false}]'
-  ```
+### Specific Device Commands
+- **Humidifier**: `miiocli airhumidifiermiot --ip <IP> --token <TOKEN> status`
+- **Rice Cooker**: `miiocli cooker --ip <IP> --token <TOKEN> status`
 
-### Humidifier
-- **Status**:
-  ```bash
-  miiocli airhumidifiermiot --ip <IP> --token <TOKEN> status
-  ```
-
-### Rice Cooker
-- **Status**:
-  ```bash
-  miiocli cooker --ip <IP> --token <TOKEN> status
-  ```
-
-## Troubleshooting
-
-- **Connection Timeout**: Ensure the device is powered on and reachable via `ping`.
-- **Click Error**: If you see `TypeError: argument of type 'bool' is not iterable`, ensure `click<8.1.0` is installed in the miio virtual environment.
+## ⚠️ Troubleshooting
+- **Timeout**: Ensure the Mac is on the same subnet (e.g., `192.168.28.x`).
+- **Dependency Issue**: If you see `TypeError: argument of type 'bool' is not iterable`, verify `click<8.1.0` is installed.
