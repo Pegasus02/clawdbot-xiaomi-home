@@ -14,10 +14,13 @@ This skill enables Clawdbot to control Xiaomi (Mi Home) devices over the local n
 2. **Credentials**: You need the **IP Address** and the **32-character Token** for each device.
 
 ### How to get Tokens
-Use the [Xiaomi Cloud Tokens Extractor](https://github.com/PiotrMachowski/Xiaomi-Cloud-Tokens-Extractor):
-1. Run the script.
-2. Log in with your Mi Home account.
-3. Copy the IP and Token for your devices.
+Use the bundled **Token Extractor** script:
+1. Navigate to the skill folder.
+2. Run: `python3 scripts/token_extractor.py`.
+3. Log in with your Mi Home account.
+4. Copy the IP and Token for your devices.
+
+Alternatively, use the [original repo](https://github.com/PiotrMachowski/Xiaomi-Cloud-Tokens-Extractor).
 
 ## Configuration
 
